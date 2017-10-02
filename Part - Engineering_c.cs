@@ -40,13 +40,44 @@ public class Script
 	private string _Key4UD101;
 	private string _Key5UD101;
 	private DataView PartRev_DataView;
+	private EpiDataView edvPartRev;
 	// End Wizard Added Module Level Variables **
 
 	// Add Custom Module Level Variables Here **
+	private EpiDataView partRevView;
+	private EpiDataView copyView;
+	private static EpiTextBox partNum;
+	private static EpiUltraCombo revisionNum;
+	private static EpiTextBox height;
+	private static EpiTextBox width;
+	private static EpiTextBox depth;
+    
+    private static EpiTextBox weight;
+    private static EpiTextBox primaryMaterial;
+    private static EpiTextBox color;
+    private static EpiTextBox weightcapacity;
+    
+    private static EpiTextBox installTime;
+    private static EpiTextBox requireInstallKit;
+    
+    private static EpiTextBox usedWith;
+    private static EpiTextBox maxLadderLength;
+    private static EpiTextBox partitionOffset;
+    private static EpiTextBox partitionDoorOpening;
+    private static EpiTextBox numShelves;
+    private static EpiTextBox openShelfSpace;
+    
+    private static EpiTextBox numSmallBins;
+    private static EpiTextBox numMediumBins;
+    private static EpiTextBox numLargeBins;
+    private static EpiTextBox numBottles;
+    private static EpiTextBox numDividers;
 
 	public void InitializeCustomCode()
 	{
 		gridVehicles.ReadOnly = true;
+		this.comboCopy.ReadOnly = true;
+		this.buttonCopy.ReadOnly = true;
 		// ** Wizard Insert Location - Do not delete 'Begin/End Wizard Added Variable Initialization' lines **
 		// Begin Wizard Added Variable Initialization
 		//this.gridVehicle.DisplayLayout.Override.AllowUpdate = Infragistics.Win.DefaultableBoolean.False;
@@ -63,10 +94,13 @@ public class Script
 		this.PartRev_Row.EpiRowChanged += new EpiRowChanged(this.PartRev_AfterRowChangeForUD101);
 		this.PartRev_DataView = this.PartRev_Row.dataView;
 		this.PartRev_DataView.ListChanged += new ListChangedEventHandler(this.PartRev_DataView_ListChangedForUD101);
+		this.edvPartRev = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
+		this.edvPartRev.EpiViewNotification += new EpiViewNotification(this.edvPartRev_EpiViewNotification);
 		// End Wizard Added Variable Initialization
 
 		// Begin Wizard Added Custom Method Calls
 
+		this.buttonCopy.Click += new System.EventHandler(this.buttonCopy_Click);
 		// End Wizard Added Custom Method Calls
 	}
 
@@ -94,6 +128,9 @@ public class Script
 		this.PartRev_Row.EpiRowChanged -= new EpiRowChanged(this.PartRev_AfterRowChangeForUD101);
 		this.PartRev_DataView.ListChanged -= new ListChangedEventHandler(this.PartRev_DataView_ListChangedForUD101);
 		this.PartRev_DataView = null;
+		this.buttonCopy.Click -= new System.EventHandler(this.buttonCopy_Click);
+		this.edvPartRev.EpiViewNotification -= new EpiViewNotification(this.edvPartRev_EpiViewNotification);
+		this.edvPartRev = null;
 		// End Wizard Added Object Disposal
 
 		// Begin Custom Code Disposal
@@ -306,11 +343,11 @@ public class Script
 			case "EpiAddNewNew Vehicle":
 				GetNewUD101Record();
 				break;
-
+	
 			case "ClearTool":
 				ClearUD101Data();
 				break;
-
+	
 			case "UndoTool":
 				UndoUD101Changes();
 				break;
@@ -334,7 +371,7 @@ public class Script
 		switch (args.Tool.Key)
 		{
 			case "DeleteTool":
-            // Evan
+	            // Evan
 				/*if ((args.Cancelled == false))
 				{
 					EpiMessageBox.Show("Delete Launch");
@@ -359,5 +396,73 @@ public class Script
 		string partnum = PartRev_DataView[0]["PartNum"].ToString();
 		string revisionnum = PartRev_DataView[0]["RevisionNum"].ToString();
 		GetUD101Data(partnum, revisionnum, string.Empty, string.Empty, string.Empty);
+	}
+
+	private void buttonCopy_Click(object sender, System.EventArgs args)
+	{
+		partNum = ((EpiTextBox)csm.GetNativeControlReference("38e1671b-0c3f-4ab3-b8ab-95f26285f1d2")); 	
+		revisionNum = ((EpiUltraCombo)csm.GetNativeControlReference("39efd648-f33c-47b7-9321-17c60419d649")); 	
+		
+		this.partRevView = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
+		this.copyView = new EpiDataView();
+		DataTable copyTable = this.partRevView.dataView.ToTable();;
+		this.copyView.dataView =  copyTable.DefaultView;
+		
+		
+		String newFilter = "AltMethod = '' AND PartNum = '" + partNum.Text + "' AND RevisionNum = '" + revisionNum.Text + "'"; 
+		this.copyView.dataView.RowFilter =  newFilter;
+		if(this.copyView.dataView.Count != 1) {
+			MessageBox.Show("Filter has " + this.copyView.dataView.Count.ToString() + " rows!");
+		}
+		
+		partRevView.dataView[this.partRevView.Row]["Height_c"] = this.copyView.dataView[0]["Height_c"];
+		partRevView.dataView[this.partRevView.Row]["Width_c"] = this.copyView.dataView[0]["Width_c"];
+		partRevView.dataView[this.partRevView.Row]["Depth_c"] = this.copyView.dataView[0]["Depth_c"];
+		
+		partRevView.dataView[this.partRevView.Row]["Weight_c"] = this.copyView.dataView[0]["Weight_c"];
+		partRevView.dataView[this.partRevView.Row]["PrimaryMaterial_c"] = this.copyView.dataView[0]["PrimaryMaterial_c"];
+		partRevView.dataView[this.partRevView.Row]["Color_c"] = this.copyView.dataView[0]["Color_c"];
+		partRevView.dataView[this.partRevView.Row]["WeightCap_c"] = this.copyView.dataView[0]["WeightCap_c"];
+		
+		partRevView.dataView[this.partRevView.Row]["InstallTime_c"] = this.copyView.dataView[0]["InstallTime_c"];
+		partRevView.dataView[this.partRevView.Row]["ReqInstallKit_c"] = this.copyView.dataView[0]["ReqInstallKit_c"];
+		
+		partRevView.dataView[this.partRevView.Row]["UsedWith_c"] = this.copyView.dataView[0]["UsedWith_c"];
+		partRevView.dataView[this.partRevView.Row]["MaxLadderLength_c"] = this.copyView.dataView[0]["MaxLadderLength_c"];
+		partRevView.dataView[this.partRevView.Row]["PartitionOffset_c"] = this.copyView.dataView[0]["PartitionOffset_c"];
+		partRevView.dataView[this.partRevView.Row]["PartitionDoorOpening_c"] = this.copyView.dataView[0]["PartitionDoorOpening_c"];
+		partRevView.dataView[this.partRevView.Row]["NumShelves_c"] = this.copyView.dataView[0]["NumShelves_c"];
+		partRevView.dataView[this.partRevView.Row]["OpenShelfSpace_c"] = this.copyView.dataView[0]["OpenShelfSpace_c"];
+		
+		partRevView.dataView[this.partRevView.Row]["NumSmallBins_c"] = this.copyView.dataView[0]["NumSmallBins_c"];
+		partRevView.dataView[this.partRevView.Row]["NumMediumBins_c"] = this.copyView.dataView[0]["NumMediumBins_c"];
+		partRevView.dataView[this.partRevView.Row]["NumLargeBins_c"] = this.copyView.dataView[0]["NumLargeBins_c"];
+		partRevView.dataView[this.partRevView.Row]["NumBottles_c"] = this.copyView.dataView[0]["NumBottles_c"];
+		partRevView.dataView[this.partRevView.Row]["NumDividers_c"] = this.copyView.dataView[0]["NumDividers_c"];
+		
+		this.copyView = null;
+	}
+
+	private void edvPartRev_EpiViewNotification(EpiDataView view, EpiNotifyArgs args)
+	{
+		// ** Argument Properties and Uses **
+		// view.dataView[args.Row]["FieldName"]
+		// args.Row, args.Column, args.Sender, args.NotifyType
+		// NotifyType.Initialize, NotifyType.AddRow, NotifyType.DeleteRow, NotifyType.InitLastView, NotifyType.InitAndResetTreeNodes
+		//EpiMessageBox.Show(args.NotifyType.ToString());
+		if ((args.NotifyType == EpiTransaction.NotifyType.AddRow))
+		{
+			if ((args.Row > -1))
+			{
+				this.comboCopy.ReadOnly = false;
+				this.buttonCopy.ReadOnly = false;
+			}
+		}
+		else if ((args.Sender == view) && (args.NotifyType == EpiTransaction.NotifyType.Initialize))
+		{
+			this.comboCopy.ReadOnly = true;
+			this.buttonCopy.ReadOnly = true;
+			this.comboCopy.Text = "";
+		}
 	}
 }
