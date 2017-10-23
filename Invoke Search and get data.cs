@@ -1,4 +1,5 @@
 
+// Set BO adapter
 this.custAdapter = new CustomerAdapter(this.oTrans);
 this.custAdapter.BOConnect();
 
@@ -14,5 +15,5 @@ this.custAdapter.BOConnect();
     this.custAdapter.InvokeSearch(searchOptions);
     
 // Get Data Row
-DataRow dataRow = this.adapterName.TableNameData.TableName.Rows[row index];
-dataRow["Column Name"]
+    DataRow dataRow = this.adapterName.TableNameData.TableName.Rows[row index];
+    dataRow["Column Name"]
