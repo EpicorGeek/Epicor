@@ -72,7 +72,7 @@ public class Script
 		string custID = formatNewID(currentCustomer["Name"].ToString());
 
 	// Set Suffix
-		int custSuffix = 0; // 000
+		int custSuffix = 1; // 001
 	
 	// Iterate until suffix exists with prefix
 		do {
