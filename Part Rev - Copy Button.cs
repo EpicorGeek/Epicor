@@ -405,7 +405,7 @@ public class Script
 		
         this.partRevView = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
 		this.copyView = new EpiDataView();
-        DataTable copyTable = this.partRevView.dataView.ToTable();;
+        DataTable copyTable = this.partRevView.dataView.ToTable();
         this.copyView.dataView =  copyTable.DefaultView;
 		//oTrans.Add("copyView", this.copyView);
 		
