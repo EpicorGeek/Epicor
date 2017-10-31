@@ -99,7 +99,7 @@ public class Script
 				
 				category = ((EpiCombo)csm.GetNativeControlReference("f76dd0e7-ba1f-4fff-aaec-9cc5e3f15156"));
 				fleetSize = ((EpiCombo)csm.GetNativeControlReference("8228301d-6ad4-4b54-8834-5a9a50535bf1"));
-				if(category.Text == "Fleet" && fleetSize .Text.Length == 0)
+				if(category.Text == "Fleet" && fleetSize.Text.Length == 0)
 				{
 					throw new UIException("Fleet size must be filled for Category: Fleet");
 				}
