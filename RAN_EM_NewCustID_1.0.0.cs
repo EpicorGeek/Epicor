@@ -91,7 +91,7 @@ public class Script
 
 	// Set new custID
 		string newCustID = custID + custSuffix.ToString("D3");
-		MessageBox.Show("New CustID: " + newCustID);
+		//MessageBox.Show("New CustID: " + newCustID);
 		
 		et_newCustID = ((EpiTextBox)csm.GetNativeControlReference("eb06f6cc-8342-4610-8c12-bdfb93e78f8d")); 
 		et_newCustID.Text = newCustID;

@@ -26,8 +26,8 @@ public class Script
 	// End Wizard Added Module Level Variables **
 
 	// Add Custom Module Level Variables Here **
-	EpiDataView custCredView;
-	EpiDateTimeEditor date;
+	private EpiDataView custCredView;
+	private EpiDateTimeEditor date;
 	public void InitializeCustomCode()
 	{
 		// ** Wizard Insert Location - Do not delete 'Begin/End Wizard Added Variable Initialization' lines **
@@ -97,17 +97,14 @@ public class Script
 				// {
 				// 	DoSomethingElse();
 				// }
-				
 
-				date = ((EpiDateTimeEditor)csm.GetNativeControlReference("2e4d2b3c-3654-4b7c-8f83-9fe285215802")); 
+				date = ((EpiDateTimeEditor)csm.GetNativeControlReference("58b174f5-b539-42ab-8e1c-1007c7b85541")); 
 				int length = date.Text.Length;
-				//MessageBox.Show(length.ToString());
 				if(length == 0)
 				{
 					custCredView = ((EpiDataView)(this.oTrans.EpiDataViews["Customer"]));
 					custCredView.dataView[this.custCredView.Row]["LastCreditHold_c"] = DBNull.Value;
 				}
-
 				break;
 		}
 

@@ -75,7 +75,6 @@ public class Script
 
 		this.oTrans_customerAdapter.BeforeAdapterMethod -= new BeforeAdapterMethod(this.oTrans_customerAdapter_BeforeAdapterMethod);
 		this.oTrans_customerAdapter = null;
-        this.edvCustomer = null;
 		this.Customer_Column.ColumnChanged -= new DataColumnChangeEventHandler(this.Customer_AfterFieldChange);
 		this.btnParentCust.Click -= new System.EventHandler(this.btnParentCust_Click);
 		this.CustCnt_Column.ColumnChanged -= new DataColumnChangeEventHandler(this.CustCnt_AfterFieldChange);
