@@ -14,11 +14,23 @@ this.custAdapter.BOConnect();
     SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
     this.custAdapter.InvokeSearch(searchOptions);
     
+    
+    
 // Get Data Row
     DataRow dataRow = this.adapterName.TableNameData.TableName.Rows[row index];
     dataRow["Column Name"]
     
+// Select Data Row
+    DataRow[] copyRows = ud100Adapter.UD100Data.UD100A.Select("ChildKey1 = \'" + txtCopyPart.Text.ToString() + "\' and ChildKey2 = \'" + txtCopyRev.Text.ToString() + "\'");
+					
 
+    
+    
+    
+    
+    
+    
+    
 // Simple Search Function List Loopup
     bool recSelected;
     string whereClause = string.Empty;
