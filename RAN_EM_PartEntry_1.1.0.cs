@@ -98,6 +98,7 @@ public class Script
 		this.btnRetrieve.Click += new System.EventHandler(this.btnRetrieve_Click);
 		this.ugdVehicle.ClickCell += new Infragistics.Win.UltraWinGrid.ClickCellEventHandler(this.ugdVehicle_ClickCell);
 		this.btnGetPartRev.Click += new System.EventHandler(this.btnGetPartRev_Click);
+		this.btnCopyVehicles.Click += new System.EventHandler(this.btnCopyVehicles_Click);
 		// End Wizard Added Custom Method Calls
 	}
 
@@ -110,6 +111,7 @@ public class Script
 		this.edvPartRev.EpiViewNotification -= new EpiViewNotification(this.edvPartRev_EpiViewNotification);
 		this.edvPartRev = null;
 		this.btnGetPartRev.Click -= new System.EventHandler(this.btnGetPartRev_Click);
+		this.btnCopyVehicles.Click -= new System.EventHandler(this.btnCopyVehicles_Click);
 		// End Wizard Added Object Disposal
 
 		// Begin Custom Code Disposal
@@ -120,54 +122,74 @@ public class Script
 
 	private void buttonCopy_Click(object sender, System.EventArgs args)
 	{ 
-		//txtCopyPart = ((EpiTextBox)csm.GetNativeControlReference("d74c3905-a49e-42f4-a48d-e2a6a8b79379")); 
-		//txtCopyRev = ((EpiTextBox)csm.GetNativeControlReference("31cbeabb-4107-4626-ae5d-66897b75a8d8")); 	
+		txtCopyPart = ((EpiTextBox)csm.GetNativeControlReference("d74c3905-a49e-42f4-a48d-e2a6a8b79379")); 
+		txtCopyRev = ((EpiTextBox)csm.GetNativeControlReference("31cbeabb-4107-4626-ae5d-66897b75a8d8")); 	
 		this.partRevView = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
+        DataRow dataRowPartRev = this.partRevView.CurrentDataRow;
+		string partNum;
+		string revisionNum;
+		if ((dataRowPartRev != null)) {
+			partNum = dataRowPartRev["PartNum"].ToString();
+			revisionNum  = dataRowPartRev["RevisionNum"].ToString();
 
-		this.partRevAdapter = new PartRevSearchAdapter(this.oTrans);
-		this.partRevAdapter.BOConnect();
+            if(txtCopyPart.Text == partNum && txtCopyRev.Text == revisionNum) {
+                    MessageBox.Show("Cannot copy from same Part Revision");
+            }
+            else if(txtCopyPart.Text == "" || txtCopyRev.Text == "") {
+				MessageBox.Show("Choose a Part Revision");
+			}
+            else {
+                DialogResult dialogResult = EpiMessageBox.Show("Are you sure you want to copy attributes?", "Cancel", MessageBoxButtons.YesNo);
+				if ((dialogResult == DialogResult.Yes)) {
+				
+                    try {
+                        this.partRevAdapter = new PartRevSearchAdapter(this.oTrans);
+                        this.partRevAdapter.BOConnect();
 
-	    string whereClause = "PartNum = '" + txtCopyPart.Text + "' AND RevisionNum = '" + txtCopyRev.Text + "'"; 
-	    System.Collections.Hashtable whereClauses = new System.Collections.Hashtable(1);
-	    whereClauses.Add("PartRev", whereClause);
+                        string whereClause = "PartNum = '" + txtCopyPart.Text + "' AND RevisionNum = '" + txtCopyRev.Text + "'"; 
+                        System.Collections.Hashtable whereClauses = new System.Collections.Hashtable(1);
+                        whereClauses.Add("PartRev", whereClause);
 
-	    SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
-	    this.partRevAdapter.InvokeSearch(searchOptions);
-	    
-	    DataRow dataRow = this.partRevAdapter.PartRevSearchData.PartRev.Rows[0];
-	    
-		if(this.partRevAdapter.PartRevSearchData.PartRev.Count == 0) {
-			MessageBox.Show("Filter has no rows!");
-		}
-		else {
-			partRevView.dataView[this.partRevView.Row]["Height_c"] = dataRow["Height_c"];
-			partRevView.dataView[this.partRevView.Row]["Width_c"] = dataRow["Width_c"];
-			partRevView.dataView[this.partRevView.Row]["Depth_c"] = dataRow["Depth_c"];
-			
-			partRevView.dataView[this.partRevView.Row]["Weight_c"] = dataRow["Weight_c"];
-			partRevView.dataView[this.partRevView.Row]["PrimaryMaterial_c"] = dataRow["PrimaryMaterial_c"];
-			partRevView.dataView[this.partRevView.Row]["Color_c"] = dataRow["Color_c"];
-			partRevView.dataView[this.partRevView.Row]["WeightCap_c"] = dataRow["WeightCap_c"];
-			
-			partRevView.dataView[this.partRevView.Row]["InstallTime_c"] = dataRow["InstallTime_c"];
-			partRevView.dataView[this.partRevView.Row]["ReqInstallKit_c"] = dataRow["ReqInstallKit_c"];
-			
-			partRevView.dataView[this.partRevView.Row]["UsedWith_c"] = dataRow["UsedWith_c"];
-			partRevView.dataView[this.partRevView.Row]["MaxLadderLength_c"] = dataRow["MaxLadderLength_c"];
-			partRevView.dataView[this.partRevView.Row]["PartitionOffset_c"] = dataRow["PartitionOffset_c"];
-			partRevView.dataView[this.partRevView.Row]["PartitionDoorOpening_c"] = dataRow["PartitionDoorOpening_c"];
-			partRevView.dataView[this.partRevView.Row]["NumShelves_c"] = dataRow["NumShelves_c"];
-			partRevView.dataView[this.partRevView.Row]["OpenShelfSpace_c"] = dataRow["OpenShelfSpace_c"];
-			
-			partRevView.dataView[this.partRevView.Row]["NumSmallBins_c"] = dataRow["NumSmallBins_c"];
-			partRevView.dataView[this.partRevView.Row]["NumMediumBins_c"] = dataRow["NumMediumBins_c"];
-			partRevView.dataView[this.partRevView.Row]["NumLargeBins_c"] = dataRow["NumLargeBins_c"];
-			partRevView.dataView[this.partRevView.Row]["NumBottles_c"] = dataRow["NumBottles_c"];
-			partRevView.dataView[this.partRevView.Row]["NumDividers_c"] = dataRow["NumDividers_c"];
-			partRevView.dataView[this.partRevView.Row]["QtyBoxes_c"] = dataRow["QtyBoxes_c"];
+                        SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
+                        this.partRevAdapter.InvokeSearch(searchOptions);
+                        
+                        DataRow dataRow = this.partRevAdapter.PartRevSearchData.PartRev.Rows[0];
+                        
+                        if(this.partRevAdapter.PartRevSearchData.PartRev.Count > 0) {
+                            dataRowPartRev["Height_c"] = dataRow["Height_c"];
+                            dataRowPartRev["Width_c"] = dataRow["Width_c"];
+                            dataRowPartRev["Depth_c"] = dataRow["Depth_c"];
+                            
+                            dataRowPartRev["Weight_c"] = dataRow["Weight_c"];
+                            dataRowPartRev["PrimaryMaterial_c"] = dataRow["PrimaryMaterial_c"];
+                            dataRowPartRev["Color_c"] = dataRow["Color_c"];
+                            dataRowPartRev["WeightCap_c"] = dataRow["WeightCap_c"];
+                            
+                            dataRowPartRev["InstallTime_c"] = dataRow["InstallTime_c"];
+                            dataRowPartRev["ReqInstallKit_c"] = dataRow["ReqInstallKit_c"];
+                            
+                            dataRowPartRev["UsedWith_c"] = dataRow["UsedWith_c"];
+                            dataRowPartRev["MaxLadderLength_c"] = dataRow["MaxLadderLength_c"];
+                            dataRowPartRev["PartitionOffset_c"] = dataRow["PartitionOffset_c"];
+                            dataRowPartRev["PartitionDoorOpening_c"] = dataRow["PartitionDoorOpening_c"];
+                            dataRowPartRev["NumShelves_c"] = dataRow["NumShelves_c"];
+                            dataRowPartRev["OpenShelfSpace_c"] = dataRow["OpenShelfSpace_c"];
+                            
+                            dataRowPartRev["NumSmallBins_c"] = dataRow["NumSmallBins_c"];
+                            dataRowPartRev["NumMediumBins_c"] = dataRow["NumMediumBins_c"];
+                            dataRowPartRev["NumLargeBins_c"] = dataRow["NumLargeBins_c"];
+                            dataRowPartRev["NumBottles_c"] = dataRow["NumBottles_c"];
+                            dataRowPartRev["NumDividers_c"] = dataRow["NumDividers_c"];
+                            dataRowPartRev["QtyBoxes_c"] = dataRow["QtyBoxes_c"];
 
-			MessageBox.Show("Copy Successful!");
-		}
+                            MessageBox.Show("Copy Successful!");
+                        }
+                    } catch(Exception e) {
+                        MessageBox.Show(e.ToString());
+                    }
+                }
+            }
+        }
 	}
 
 	private void edvPartRev_EpiViewNotification(EpiDataView view, EpiNotifyArgs args)
@@ -181,11 +203,13 @@ public class Script
 		if (this.partRevView.CurrentDataRow != null && (args.NotifyType == EpiTransaction.NotifyType.Initialize))
 		{
 			this.buttonCopy.ReadOnly = false;
+            this.btnCopyVehicles.ReadOnly = false;
 			this.txtCopyPart.Text = "";
 			this.txtCopyRev.Text = "";
 		}
 		else {
 			this.buttonCopy.ReadOnly = true;
+            this.btnCopyVehicles.ReadOnly = true;
 		}
 	}
 
@@ -425,5 +449,65 @@ public class Script
 	private void btnGetPartRev_Click(object sender, System.EventArgs args)
 	{
 		SearchOnPartRevSearchAdapterShowDialog();
+	}
+
+	private void btnCopyVehicles_Click(object sender, System.EventArgs args)
+	{
+		txtCopyPart = ((EpiTextBox)csm.GetNativeControlReference("d74c3905-a49e-42f4-a48d-e2a6a8b79379")); 
+		txtCopyRev = ((EpiTextBox)csm.GetNativeControlReference("31cbeabb-4107-4626-ae5d-66897b75a8d8")); 		
+		EpiDataView epiViewPartRev = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
+		DataRow dataRowPartRev = epiViewPartRev.CurrentDataRow;
+		string partNum;
+		string revisionNum;
+		if ((dataRowPartRev != null)) {
+			partNum = dataRowPartRev["PartNum"].ToString();
+			revisionNum  = dataRowPartRev["RevisionNum"].ToString();
+		
+	
+			if(txtCopyPart.Text == partNum && txtCopyRev.Text == revisionNum) {
+				MessageBox.Show("Cannot copy from same Part Revision");
+			}
+			else if(txtCopyPart.Text == "" || txtCopyRev.Text == "") {
+				MessageBox.Show("Choose a Part Revision");
+			}
+			else {
+				DialogResult dialogResult = EpiMessageBox.Show("Are you sure you want to copy vehicles?", "Cancel", MessageBoxButtons.YesNo);
+				if ((dialogResult == DialogResult.Yes)) {
+				
+					try {
+					// Set UD100Adapter
+						
+					    UD100Adapter ud100Adapter  = new UD100Adapter(PartForm);
+						ud100Adapter.BOConnect();
+		
+						Hashtable whereClauses = new Hashtable(1);
+						string whereClause = "ChildKey1 <> '' AND ChildKey2 <> ''";
+		                whereClauses.Add("UD100A", whereClause);
+						 
+		                SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
+		                ud100Adapter.InvokeSearch(searchOptions);
+		
+		            // Delete all current PartRev's vehicles 
+						DataRow[] deleteRows = ud100Adapter.UD100Data.UD100A.Select("ChildKey1 = \'" + partNum + "\' and ChildKey2 = \'" + revisionNum + "\'");
+						for (int i = 0; (i < deleteRows.Length); i++)
+						{
+							ud100Adapter.Delete(deleteRows[i]);
+						}
+		
+					// Copy all selected PartRev's vehicles
+						DataRow[] copyRows = ud100Adapter.UD100Data.UD100A.Select("ChildKey1 = \'" + txtCopyPart.Text + "\' and ChildKey2 = \'" + txtCopyRev.Text + "\'");
+						for (int i = 0; (i < copyRows.Length); i++)
+						{
+							CreateChild(copyRows[i]["Brand_c"].ToString(), copyRows[i]["Model_c"].ToString(), copyRows[i]["Year_c"].ToString(), copyRows[i]["Length_c"].ToString(), copyRows[i]["Height_c"].ToString());
+						}
+						ud100Adapter.Update();
+						ud100Adapter.Dispose();
+						MessageBox.Show("Completed");
+					} catch(Exception e) {
+						MessageBox.Show(e.ToString());
+					}
+				} 
+			}
+		}
 	}
 }
