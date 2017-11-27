@@ -182,7 +182,7 @@ public class Script
                             dataRowPartRev["NumDividers_c"] = dataRow["NumDividers_c"];
                             dataRowPartRev["QtyBoxes_c"] = dataRow["QtyBoxes_c"];
 
-                            MessageBox.Show("Copy Successful!");
+                            MessageBox.Show("Completed");
                         }
                     } catch(Exception e) {
                         MessageBox.Show(e.ToString());
