@@ -307,7 +307,7 @@ public class Script
 		string prefix = name;
 		string cleanPrefix = "";
 		foreach(Char i in prefix) {
-			if(Char.IsLetter(i)) {
+			if(Char.IsLetter(i) || Char.IsDigit(i)) {
 				cleanPrefix = cleanPrefix + i;
 			}
 		}
