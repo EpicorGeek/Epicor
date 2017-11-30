@@ -145,15 +145,8 @@ public class Script
                     try {
                         this.partRevAdapter = new PartRevSearchAdapter(this.oTrans);
                         this.partRevAdapter.BOConnect();
-
-                        string whereClause = "PartNum = '" + txtCopyPart.Text + "' AND RevisionNum = '" + txtCopyRev.Text + "'"; 
-                        System.Collections.Hashtable whereClauses = new System.Collections.Hashtable(1);
-                        whereClauses.Add("PartRev", whereClause);
-
-                        SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
-                        this.partRevAdapter.InvokeSearch(searchOptions);
-                        
-                        DataRow dataRow = this.partRevAdapter.PartRevSearchData.PartRev.Rows[0];
+						this.partRevAdapter.GetByID(txtCopyPart.Text, txtCopyRev.Text, "");
+						DataRow dataRow = this.partRevAdapter.PartRevSearchData.PartRev.Rows[0];
                         
                         if(this.partRevAdapter.PartRevSearchData.PartRev.Count > 0) {
                             dataRowPartRev["Height_c"] = dataRow["Height_c"];
@@ -181,8 +174,9 @@ public class Script
                             dataRowPartRev["NumBottles_c"] = dataRow["NumBottles_c"];
                             dataRowPartRev["NumDividers_c"] = dataRow["NumDividers_c"];
                             dataRowPartRev["QtyBoxes_c"] = dataRow["QtyBoxes_c"];
-
+						
                             MessageBox.Show("Completed");
+							this.partRevAdapter.Dispose();
                         }
                     } catch(Exception e) {
                         MessageBox.Show(e.ToString());
@@ -199,7 +193,7 @@ public class Script
 		// args.Row, args.Column, args.Sender, args.NotifyType
 		// NotifyType.Initialize, NotifyType.AddRow, NotifyType.DeleteRow, NotifyType.InitLastView, NotifyType.InitAndResetTreeNodes
 		this.partRevView = ((EpiDataView)(this.oTrans.EpiDataViews["PartRev"]));
-		
+		//MessageBox.Show(args.NotifyType.ToString());
 		if (this.partRevView.CurrentDataRow != null && (args.NotifyType == EpiTransaction.NotifyType.Initialize))
 		{
 			this.buttonCopy.ReadOnly = false;
