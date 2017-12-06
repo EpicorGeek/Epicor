@@ -63,6 +63,7 @@ public class Script
 		this.Customer_Column.ColumnChanged += new DataColumnChangeEventHandler(this.Customer_AfterFieldChange);
 		this.custDataView = ((EpiDataView)(this.oTrans.EpiDataViews["Customer"]));
 		this.custDataView.EpiViewNotification += new EpiViewNotification(this.custDataView_EpiViewNotification);
+		this.CustCnt_Column.ColumnChanged += new DataColumnChangeEventHandler(this.CustCnt_AfterFieldChange);
 		// End Wizard Added Variable Initialization
 
 		// Begin Wizard Added Custom Method Calls
@@ -84,6 +85,7 @@ public class Script
 		this.btnNextCustID.Click -= new System.EventHandler(this.btnNextCustID_Click);
 		this.custDataView = null;
 		this.custDataView.EpiViewNotification -= new EpiViewNotification(this.custDataView_EpiViewNotification);
+		this.CustCnt_Column.ColumnChanged -= new DataColumnChangeEventHandler(this.CustCnt_AfterFieldChange);
 		// End Wizard Added Object Disposal
 
 		// Begin Custom Code Disposal
@@ -342,6 +344,60 @@ public class Script
 				this.btnNextCustID.Enabled = false;
 			}
 			
+		}
+	}
+
+	private void CustCnt_AfterFieldChange(object sender, DataColumnChangeEventArgs args)
+	{
+		// ** Argument Properties and Uses **
+		// args.Row["FieldName"]
+		// args.Column, args.ProposedValue, args.Row
+		// Add Event Handler Code
+		EpiDataView edvCustomer = ((EpiDataView)(this.oTrans.EpiDataViews["Customer"]));
+		System.Data.DataRow edvCustomerRow = edvCustomer.CurrentDataRow;
+		string custID = edvCustomerRow["CustID"].ToString();
+		
+		
+		CustomerAdapter custAdapter = new CustomerAdapter(this.oTrans);
+		custAdapter.BOConnect();
+		custAdapter.GetByCustID(custID,false);
+		DataRow row = custAdapter.CustomerData.Customer[0];
+		
+		int primB = int.Parse(row["PrimBCon"].ToString());
+		int primP = int.Parse(row["PrimPCon"].ToString());
+		int primS = int.Parse(row["PrimSCon"].ToString());
+		
+		string leadType = "";
+		bool warning = false;
+
+		switch (args.Column.ColumnName)
+		{
+		    case "PrimaryBilling":
+		        if(primB != 0 && args.ProposedValue.ToString() == "True"){
+					warning = true;
+					leadType = "billing";
+				} 
+		    	break;
+		    case "PrimaryPurchasing":
+		        if(primP != 0 && args.ProposedValue.ToString() == "True"){
+					warning = true;
+					leadType = "purchasing";
+				} 
+		    	break;
+		    case "PrimaryShipping":
+		        if(primS != 0 && args.ProposedValue.ToString() == "True"){
+					warning = true;
+					leadType = "shipping";
+				} 
+		    	break;
+		}
+		
+		if(warning) 
+		{
+			DialogResult dialogResult = EpiMessageBox.Show("There exists another contact for " + leadType + "\nContinue?", "Cancel", MessageBoxButtons.YesNo);
+			if ((dialogResult == DialogResult.No)) {
+			    oTrans.Undo();
+			} 
 		}
 	}
 }
