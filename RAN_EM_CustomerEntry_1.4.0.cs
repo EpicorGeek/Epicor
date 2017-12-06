@@ -276,22 +276,17 @@ public class Script
 			string custID = formatNewID(currentCustomer["Name"].ToString());
 	
 		// Set Suffix
-			int custSuffix = 1; // 001
-		
+			int custSuffix = 0; // 001
+			
 		// Iterate until suffix exists with prefix
 			do {
-				string whereClause = "CustID = \'" + custID + custSuffix.ToString("D3") + "\'";
-				System.Collections.Hashtable whereClauses = new System.Collections.Hashtable(1);
-				whereClauses.Add("Customer", whereClause);
-				
-				SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
-				this.custAdapter.InvokeSearch(searchOptions);
-		
-				if ((this.custAdapter.CustomerData.Customer.Rows.Count > 0))
-				{
-					custSuffix++;
-				} 
-			} while(this.custAdapter.CustomerData.Customer.Rows.Count > 0);
+                custSuffix++;
+				try {
+					this.custAdapter.GetByCustID(custID + custSuffix.ToString("D3"),false);
+				}catch(Exception e) {
+					break;
+				}
+			} while(custSuffix < 1000);
 	
 		// Set new custID
 			string newCustID = custID + custSuffix.ToString("D3");
