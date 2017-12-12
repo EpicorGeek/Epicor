@@ -1059,8 +1059,8 @@ public class Script
 	private Ice.Lib.Framework.EpiUltraGrid grdHedMiscCharge;
 	private Erp.UI.Controls.Combos.ReservePriCombo cboReservePriorityCode;
 	private Ice.Lib.Framework.EpiDateTimeEditor dtpOrderDate;
-	private Ice.Lib.Framework.EpiCheckBox chkReadyToFullfill;	
-	private Ice.Lib.Framework.EpiCheckBox chkReadyToCalc;
+	private Ice.Lib.Framework.EpiCheckBox chkReadyToFullfill;
+	private Ice.Lib.Framework.EpiCheckBox chkReadyToCalc;	
 	private Erp.UI.App.SalesOrderEntry.SheetReleasePanel sheetReleasePanel1;
 
 
@@ -1269,7 +1269,6 @@ public class Script
 		if (e.Column.ColumnName == "ReadyToCalc" && (bool)e.Row["IsFleet_c"] && (bool)e.Row["ReadyToCalc"])
 		{
 			var orderNum = (int)edvOrderHed.dataView[edvOrderHed.Row]["OrderNum"];	
-	
 			using (var bo = oTrans.GetNewBO<SalesOrderImpl, SalesOrderSvcContract>())
 			{
 				bool morePages = false;
@@ -1286,7 +1285,6 @@ public class Script
 				}
 			}			
 		}
-
 		if (e.Column.ColumnName == "ReadyToFulfill" && (bool)e.Row["ReadyToFulfill"])
 		{
 			btnCalculateShipping_Click(this, null);
@@ -1295,7 +1293,7 @@ public class Script
 		if (e.Column.ColumnName == "PowerTailgate_c" && _rowPowerTailgate != null)
 		{
 			var isBaseCurrency = (oTrans.EpiBaseForm.CurrentCurrencyToggleCode == CurrencyToggleCode.BASE);
-
+	
 			if ((bool)e.Row["PowerTailgate_c"])
 			{
 				var edvOHOrderMsc = ((EpiDataView)oTrans.EpiDataViews["OHOrderMsc"]);
@@ -1342,15 +1340,24 @@ public class Script
 		// NotifyType.Initialize, NotifyType.AddRow, NotifyType.DeleteRow, NotifyType.InitLastView, NotifyType.InitAndResetTreeNodes
 		if (args.NotifyType == EpiTransaction.NotifyType.Initialize)
 		{
-			if (btnCalculateShipping != null && chkReadyToCalc != null)
-                if(!chkReadyToCalc.Checked) btnCalculateShipping.Enabled = true; 
-			if (chkReadyToFullfill != null) chkReadyToFullfill.Enabled = false;
+		/* EM */
+			if (btnCalculateShipping != null && chkReadyToCalc != null) {
+                if(!chkReadyToCalc.Checked){btnCalculateShipping.Enabled = true;}
+				else{btnCalculateShipping.Enabled = false;}
+			}
+			if (chkReadyToFullfill != null){chkReadyToFullfill.Enabled = false;}
+		/* EM */
 			if (cboPlant != null) cboPlant.Enabled = false;
-			if (btnCalculateShipping != null) btnCalculateShipping.Enabled = true;
+			//if (btnCalculateShipping != null) btnCalculateShipping.Enabled = true;
 			if (sheetFleet != null) sheetFleet.Enabled = false;
 
-			if (args.Row >= 0)
+			if (   args.Row >= 0
+                && sheetReleasePanel1 != null
+                && cboPlant != null
+                && sheetFleet != null
+				&& chkOverrideShipSite != null)
 			{
+				
 				cboPlant.Enabled = chkOverrideShipSite.Checked;
 				//btnCalculateShipping.Enabled = chkOverrideSpecialDiscounts.Checked;
 				sheetFleet.Enabled = (bool)view.dataView[args.Row]["IsFleet_c"];
@@ -1373,9 +1380,11 @@ public class Script
 	private void btnCalculateShipping_Click(object sender, System.EventArgs args)
 	{
 		oTrans.Update();
+	
+	/* EM */
+		if (chkReadyToFullfill != null && sender.GetType() == typeof(EpiButton)){chkReadyToFullfill.Enabled = true;}
+	/* EM */
 		
-		if (btnCalculateShipping != null && chkReadyToCalc.Checked) btnCalculateShipping.Enabled = false; 
-		if (chkReadyToFullfill != null) chkReadyToFullfill.Enabled = true;
 		// First we need to get a reference to the Customer entity for the current order
 		using (var cust = oTrans.GetNewBO<CustomerImpl, CustomerSvcContract>())
 		{
