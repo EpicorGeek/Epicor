@@ -1340,15 +1340,8 @@ public class Script
 		// NotifyType.Initialize, NotifyType.AddRow, NotifyType.DeleteRow, NotifyType.InitLastView, NotifyType.InitAndResetTreeNodes
 		if (args.NotifyType == EpiTransaction.NotifyType.Initialize)
 		{
-		/* EM */
-			if (btnCalculateShipping != null && chkReadyToCalc != null) {
-                if(!chkReadyToCalc.Checked){btnCalculateShipping.Enabled = true;}
-				else{btnCalculateShipping.Enabled = false;}
-			}
-			if (chkReadyToFullfill != null){chkReadyToFullfill.Enabled = false;}
-		/* EM */
 			if (cboPlant != null) cboPlant.Enabled = false;
-			//if (btnCalculateShipping != null) btnCalculateShipping.Enabled = true;
+			if (btnCalculateShipping != null) btnCalculateShipping.Enabled = true;
 			if (sheetFleet != null) sheetFleet.Enabled = false;
 
 			if (   args.Row >= 0
@@ -1382,7 +1375,7 @@ public class Script
 		oTrans.Update();
 	
 	/* EM */
-		if (chkReadyToFullfill != null && sender.GetType() == typeof(EpiButton)){chkReadyToFullfill.Enabled = true;}
+		if (chkReadyToFullfill != null && sender.GetType() == typeof(EpiButton)){chkReadyToFullfill.Checked = true;}
 	/* EM */
 		
 		// First we need to get a reference to the Customer entity for the current order
