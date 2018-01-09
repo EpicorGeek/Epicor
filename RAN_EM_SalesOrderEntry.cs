@@ -6,6 +6,11 @@
 // SalesOrderEntry.SalesOrderEntry
 // RANGER-17-002
 // **************************************************
+// Version 1.2.1 ECS FVB 2018-01-09
+// SalesOrderEntry.SalesOrderEntry
+// RANGER-17-002
+// Change the display condition on the RO of the release tab.
+// **************************************************
 #endregion
 
 #region Usings
@@ -27,6 +32,8 @@ extern alias Erp_Contracts_BO_ProdCal;
 extern alias Erp_Contracts_BO_ReservePri;
 extern alias Erp_Contracts_BO_Plant;
 extern alias Ice_Contracts_BO_DynamicQuery;
+extern alias Ice_Adapters_UD100;
+extern alias Ice_Contracts_BO_UD100;
 
 using System;
 using System.ComponentModel;
@@ -1350,11 +1357,15 @@ public class Script
                 && sheetFleet != null
 				&& chkOverrideShipSite != null)
 			{
-				
+				_curBrand = "";
+				_curModel = "";
+				_curVehicle = "";
+				_curYear = "";
+
 				cboPlant.Enabled = chkOverrideShipSite.Checked;
 				//btnCalculateShipping.Enabled = chkOverrideSpecialDiscounts.Checked;
 				sheetFleet.Enabled = (bool)view.dataView[args.Row]["IsFleet_c"];
-				sheetReleasePanel1.Enabled = !(bool)view.dataView[args.Row]["IsFleet_c"];
+				sheetReleasePanel1.Enabled = !((bool)view.dataView[args.Row]["IsFleet_c"]  && (string)view.dataView[args.Row]["PriorityCode_c"] == "JTF4" ) ;
 				//((DataView)grdHedMiscCharge.DataSource).Table.Columns["DocDspMiscAmt"].ReadOnly = !chkOverrideSpecialDiscounts.Checked;
 			}
 			else
@@ -1373,10 +1384,6 @@ public class Script
 	private void btnCalculateShipping_Click(object sender, System.EventArgs args)
 	{
 		oTrans.Update();
-	
-	/* EM */
-		if (chkReadyToFullfill != null && sender.GetType() == typeof(EpiButton)){chkReadyToFullfill.Checked = true;}
-	/* EM */
 		
 		// First we need to get a reference to the Customer entity for the current order
 		using (var cust = oTrans.GetNewBO<CustomerImpl, CustomerSvcContract>())
@@ -2013,13 +2020,15 @@ public class Script
 		// ** Place Event Handling Code Here **
 		//GetNewUD03Record();
 		SearchOnUD100AdapterShowDialog();
-		
-		var row = _ud03Adapter.UD03Data.UD03.Rows[_edvUD03.Row];
-		row["Brand_c"] = _curBrand;
-		row["Model_c"] = _curModel;
-		row["Year_c"] = _curYear;
-		row["Vehicle_c"] = _curVehicle;
-		
+	
+		if (_edvUD03.Row > -1)
+		{
+			var row = _ud03Adapter.UD03Data.UD03.Rows[_edvUD03.Row];
+			row["Brand_c"] = _curBrand;
+			row["Model_c"] = _curModel;
+			row["Year_c"] = _curYear;
+			row["Vehicle_c"] = _curVehicle;
+		}
 	}
 
 	private void SearchOnUD100AdapterShowDialog()
@@ -2027,19 +2036,24 @@ public class Script
 		// Wizard Generated Search Method
 		// You will need to call this method from another method in custom code
 		// For example, [Form]_Load or [Button]_Click
-
-		bool recSelected;
-		string whereClause = string.Empty;
-		System.Data.DataSet dsUD100Adapter = Ice.UI.FormFunctions.SearchFunctions.listLookup(this.oTrans, "UD100Adapter", out recSelected, true, whereClause);
-		if (recSelected)
+		using (var bo = new UD100Adapter(oTrans))
 		{
-			System.Data.DataRow adapterRow = dsUD100Adapter.Tables[0].Rows[0];
+			bo.BOConnect();
 
-			_curBrand = adapterRow["Key1"].ToString();
-			_curModel = adapterRow["Key2"].ToString();
-			_curYear = adapterRow["Key3"].ToString();
-			_curVehicle = _curBrand + " " + _curModel + " " + _curYear;
+			var morePages = false;
+			SearchOptions so = new SearchOptions(SearchMode.ShowDialog);
+			so.SelectMode = SelectMode.SingleSelect;
+			if (bo.InvokeSearch(so) == DialogResult.OK)
+			{
+				System.Data.DataRow selectedRow = bo.UD100List.Tables[0].Rows[0];
+		
+				_curBrand = selectedRow["Key1"].ToString();
+				_curModel = selectedRow["Key2"].ToString();
+				_curYear = selectedRow["Key3"].ToString();
+				_curVehicle = _curBrand + " " + _curModel + " " + _curYear;
+			}
 		}
+		
 	}
 
 	
