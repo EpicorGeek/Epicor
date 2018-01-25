@@ -166,7 +166,7 @@ public class Script
 		switch (args.Column.ColumnName)
 		{
 			case "CreditHold":
-				args.Row["LastCreditHold_c"] = System.DateTime.Today;
+				//args.Row["LastCreditHold_c"] = System.DateTime.Today;
 				break;
 
 		}
