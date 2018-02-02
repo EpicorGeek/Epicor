@@ -38,3 +38,8 @@ MessageBox.Show(message);
 {
 	ExceptionBox.Show(e);
 }
+
+/* Invoke Tool in Dashboards*/
+MainController.AppControlPanel.HandleToolClick("SaveMenuTool", new 
+Infragistics.Win.UltraWinToolbars.ToolClickEventArgs(MainController.MainToolManager.Tools["SaveMenuTool"], null));
+			
