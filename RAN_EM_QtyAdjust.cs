@@ -83,7 +83,31 @@ public class Script
 			bool result = adapterPartCostSearch.GetByID(partNum, site);
 			
 			if(result) {
-				this.UnitCost.Text = adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMaterialCost"].ToString();
+                bool converted = false;
+                double AvgMaterialCost = 0;
+                double AvgBurdenCost = 0;
+                double AvgLaborCost = 0;
+                double AvgMtlBurCost = 0;
+                double AvgSubContCost = 0;
+                
+        
+                converted = double.TryParse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMaterialCost"].ToString(), out AvgMaterialCost);
+                converted = double.TryParse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgBurdenCost"].ToString(), out AvgBurdenCost);
+                converted = double.TryParse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgLaborCost"].ToString(), out AvgLaborCost);
+                converted = double.TryParse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMtlBurCost"].ToString(), out AvgMtlBurCost);
+                converted = double.TryParse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgSubContCost"].ToString(), out AvgSubContCost);
+                double avgTotal = AvgMaterialCost + AvgBurdenCost + AvgLaborCost + AvgMtlBurCost + AvgSubContCost;
+
+                this.UnitCost.Text = avgTotal.ToString("0.##");
+                
+               
+                /*double avgCost = Double.Parse(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMaterialCost"].ToString()) ;
+                                                   // +Convert.ToDouble(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMaterialCost"].ToString());
+				this.UnitCost.Text = avgCost.ToString("D2");
+				MessageBox.Show(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgBurdenCost"].ToString());
+				MessageBox.Show(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgLaborCost"].ToString());
+				MessageBox.Show(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgMtlBurCost"].ToString());
+				MessageBox.Show(adapterPartCostSearch.PartCostSearchData.PartCost.Rows[0]["AvgSubContCost"].ToString());*/
 			}
 
 			// Cleanup Adapter Reference
@@ -97,7 +121,7 @@ public class Script
 
 	private void SetExtendedCost(string quantity) {
         try {
-            double extCost = Convert.ToDouble(this.UnitCost.Text) * Convert.ToDouble(quantity);
+            double extCost = Double.Parse(this.UnitCost.Text) * Double.Parse(quantity);
             this.ExtendedCost.Text = extCost.ToString();
         } catch (System.Exception ex)
 		{
@@ -129,15 +153,17 @@ public class Script
 		// args.Row["FieldName"]
 		// args.Column, args.ProposedValue, args.Row
 		// Add Event Handler Code
-		string quantity = edvview.dataView[edvview.Row]["AdjustQuantity"].ToString();
-		switch (args.Column.ColumnName)
-		{
-			case "AdjustQuantity":	
-				SetExtendedCost(quantity);
-				break;
-			case "UnitOfMeasure":
-				SetExtendedCost(quantity);
-				break;
-		}
+        if(edvview != null){
+            string quantity = edvview.dataView[edvview.Row]["AdjustQuantity"].ToString();
+            switch (args.Column.ColumnName)
+            {
+                case "AdjustQuantity":	
+                    SetExtendedCost(quantity);
+                    break;
+                case "UnitOfMeasure":
+                    SetExtendedCost(quantity);
+                    break;
+            }
+        }
 	}
 }
