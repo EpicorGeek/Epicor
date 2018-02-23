@@ -1,32 +1,22 @@
 
 /********** BO Adapter  - Invoke Search **********/
-// Set BO adapter
-this.custAdapter = new CustomerAdapter(this.oTrans);
-this.custAdapter.BOConnect();
+EpiDataView edvCustomer = ((EpiDataView)(this.oTrans.EpiDataViews["Distributor"]));	
+DataRow drCustomer = edvCustomer.CurrentDataRow;
+string distNum = drCustomer["CustNum"].ToString();
 
+CustCntAdapter adapterCustCnt = new CustCntAdapter(this.oTrans);
+adapterCustCnt.BOConnect();
 
-// Prepare single Where clause
-string whereClause = "CustID = \'" + custID + custSuffix.ToString("D3") + "\'";
+string whereClause = "CustNum =  " + distNum + " AND LeadContact_c = true";
+SearchOptions opts = new SearchOptions(SearchMode.AutoSearch);
+opts.NamedSearch.WhereClauses.Add("CustCnt", whereClause);
 
-// Set Hashtable Where clauses
-System.Collections.Hashtable whereClauses = new System.Collections.Hashtable(1);
-whereClauses.Add("Customer", whereClause);
-
-
-// Create SearchOptions
-SearchOptions searchOptions = SearchOptions.CreateRuntimeSearch(whereClauses, DataSetMode.RowsDataSet);
-
-
-/****************OPTIONS****************/
-// Invoke Search with Hashtable Where clauses
-this.custAdapter.InvokeSearch(searchOptions);
-
-    or
-
-// Adapter Method
-bool morePages;
-DataSet dsUD100 = ud100Adapter.GetRows(searchOptions, out morePages);
-/********************************************/
+bool morePages = false;
+DataSet dsLeadContact = adapterCustCnt.GetRows(opts, out morePages);
+if(dsLeadContact.Tables["CustCnt"].Rows.Count>0)
+{
+MessageBox.Show("DataSet: " + dsLeadContact.Tables["CustCnt"].Rows.Count.ToString());		
+}
 
 
     
