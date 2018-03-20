@@ -64,6 +64,7 @@ public class Script
 		this.custDataView = ((EpiDataView)(this.oTrans.EpiDataViews["Customer"]));
 		this.custDataView.EpiViewNotification += new EpiViewNotification(this.custDataView_EpiViewNotification);
 		this.CustCnt_Column.ColumnChanged += new DataColumnChangeEventHandler(this.CustCnt_AfterFieldChange);
+		this.CustomerEntryForm.AfterToolClick += new Ice.Lib.Framework.AfterToolClickEventHandler(this.CustomerEntryForm_AfterToolClick);
 		// End Wizard Added Variable Initialization
 
 		// Begin Wizard Added Custom Method Calls
@@ -86,6 +87,7 @@ public class Script
 		this.custDataView = null;
 		this.custDataView.EpiViewNotification -= new EpiViewNotification(this.custDataView_EpiViewNotification);
 		this.CustCnt_Column.ColumnChanged -= new DataColumnChangeEventHandler(this.CustCnt_AfterFieldChange);
+		this.CustomerEntryForm.AfterToolClick -= new Ice.Lib.Framework.AfterToolClickEventHandler(this.CustomerEntryForm_AfterToolClick);
 		// End Wizard Added Object Disposal
 
 		// Begin Custom Code Disposal
@@ -348,6 +350,10 @@ public class Script
 			}
 			
 		}
+		else if ((args.NotifyType == EpiTransaction.NotifyType.Initialize))
+		{
+			GetLeadDistContact();
+		}
 	}
 
 	private void CustCnt_AfterFieldChange(object sender, DataColumnChangeEventArgs args)
@@ -402,5 +408,44 @@ public class Script
 			    oTrans.Undo();
 			} 
 		}
+	}
+
+	private void GetLeadDistContact()
+	{
+	    try
+	    {
+	        EpiDataView edvCustomer = ((EpiDataView)(this.oTrans.EpiDataViews["Distributor"]));	
+	        DataRow drCustomer = edvCustomer.CurrentDataRow;
+	        if(drCustomer != null)
+	        {
+	            string distNum = drCustomer["CustNum"].ToString();
+	            
+	            CustCntAdapter adapterCustCnt = new CustCntAdapter(this.oTrans);
+	            adapterCustCnt.BOConnect();
+	            
+	            string whereClause = "CustNum =  " + distNum + " AND LeadContact_c = true";
+	            SearchOptions opts = new SearchOptions(SearchMode.AutoSearch);
+	            opts.NamedSearch.WhereClauses.Add("CustCnt", whereClause);
+	            
+	            bool morePages = false;
+	            DataSet dsLeadContact = adapterCustCnt.GetRows(opts, out morePages);
+	            if(dsLeadContact.Tables["CustCnt"].Rows.Count>0)
+	            {
+	                this.LeadDistributorContact.Text = dsLeadContact.Tables["CustCnt"].Rows[0]["Name"].ToString();
+	            }
+	        }
+	    } catch (System.Exception ex)
+	    {
+	        ExceptionBox.Show(ex);
+	    }
+	}
+
+
+	private void CustomerEntryForm_AfterToolClick(object sender, Ice.Lib.Framework.AfterToolClickEventArgs args)
+	{
+	    if(args.Tool.Key == "ClearTool")
+	    {
+	        this.LeadDistributorContact.ResetText();
+	    }
 	}
 }
